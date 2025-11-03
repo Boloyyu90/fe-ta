@@ -1,37 +1,52 @@
-/**
- * ============================================================================
- * 🛡️ MIDDLEWARE - ROUTE PROTECTION
- * ============================================================================
- * Protects routes that require authentication
- * ============================================================================
- */
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+
+const publicRoutes = ['/login', '/register'];
+const authRoutes = ['/login', '/register'];
+const adminRoutes = ['/admin'];
 
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Get tokens from cookies
-    const accessToken = request.cookies.get('accessToken')?.value;
-    const refreshToken = request.cookies.get('refreshToken')?.value;
+    // Get auth data from cookie or header
+    const authCookie = request.cookies.get('auth-storage');
 
-    // Public routes that don't require authentication
-    const publicRoutes = ['/login', '/register', '/'];
+    let isAuthenticated = false;
+    let userRole: string | null = null;
 
-    // Check if current route is public
-    const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
+    if (authCookie) {
+        try {
+            const authData = JSON.parse(authCookie.value);
+            isAuthenticated = authData.state?.isAuthenticated || false;
+            userRole = authData.state?.user?.role || null;
+        } catch (error) {
+            // Invalid cookie, treat as not authenticated
+            isAuthenticated = false;
+        }
+    }
 
-    // If user is authenticated and trying to access auth pages
-    if ((accessToken || refreshToken) && (pathname === '/login' || pathname === '/register')) {
+    // Redirect authenticated users away from auth pages
+    if (isAuthenticated && authRoutes.some((route) => pathname.startsWith(route))) {
+        if (userRole === 'ADMIN') {
+            return NextResponse.redirect(new URL('/admin', request.url));
+        }
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
-    // If user is not authenticated and trying to access protected routes
-    if (!accessToken && !refreshToken && !isPublicRoute) {
+    // Protect authenticated routes
+    if (!isAuthenticated && !publicRoutes.some((route) => pathname.startsWith(route))) {
         const loginUrl = new URL('/login', request.url);
-        loginUrl.searchParams.set('from', pathname);
+        loginUrl.searchParams.set('redirect', pathname);
         return NextResponse.redirect(loginUrl);
+    }
+
+    // Protect admin routes
+    if (
+        isAuthenticated &&
+        adminRoutes.some((route) => pathname.startsWith(route)) &&
+        userRole !== 'ADMIN'
+    ) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
     return NextResponse.next();
@@ -46,6 +61,6 @@ export const config = {
          * - favicon.ico (favicon file)
          * - public folder
          */
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+        '/((?!_next/static|_next/image|favicon.ico|.*\\..*|api).*)',
     ],
 };
