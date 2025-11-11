@@ -9,6 +9,8 @@ import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { Alert } from '@/shared/components/ui/Alert';
 import { ROUTES } from '@/shared/constants/routes.constants';
+import { getErrorMessage, getValidationErrors, isNetworkError } from '@/shared/utils/error-handler';
+import { useEffect } from 'react';
 
 export function LoginForm() {
     const { mutate: login, isPending, isError, error } = useLogin();
@@ -16,14 +18,32 @@ export function LoginForm() {
     const {
         register,
         handleSubmit,
+        setError,
         formState: { errors },
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
     });
 
+    // ✅ IMPROVED: Set field-specific errors from API
+    useEffect(() => {
+        if (error) {
+            const validationErrors = getValidationErrors(error);
+            Object.entries(validationErrors).forEach(([field, message]) => {
+                setError(field as keyof LoginFormData, {
+                    type: 'manual',
+                    message,
+                });
+            });
+        }
+    }, [error, setError]);
+
     const onSubmit = (data: LoginFormData) => {
         login(data);
     };
+
+    // ✅ IMPROVED: Better error messages
+    const errorMessage = error ? getErrorMessage(error) : null;
+    const showNetworkWarning = error ? isNetworkError(error) : false;
 
     return (
         <div className="w-full max-w-md space-y-6">
@@ -32,9 +52,12 @@ export function LoginForm() {
                 <p className="mt-2 text-gray-600">Masuk ke akun Anda</p>
             </div>
 
-            {isError && (
-                <Alert variant="error">
-                    {error?.message || 'Email atau password salah'}
+            {isError && errorMessage && (
+                <Alert
+                    variant={showNetworkWarning ? 'warning' : 'error'}
+                    title={showNetworkWarning ? 'Masalah Koneksi' : 'Login Gagal'}
+                >
+                    {errorMessage}
                 </Alert>
             )}
 
@@ -46,6 +69,7 @@ export function LoginForm() {
                     placeholder="nama@email.com"
                     error={errors.email?.message}
                     disabled={isPending}
+                    autoComplete="email"
                 />
 
                 <Input
@@ -55,6 +79,7 @@ export function LoginForm() {
                     placeholder="••••••••"
                     error={errors.password?.message}
                     disabled={isPending}
+                    autoComplete="current-password"
                 />
 
                 <Button
@@ -63,7 +88,7 @@ export function LoginForm() {
                     isLoading={isPending}
                     disabled={isPending}
                 >
-                    Masuk
+                    {isPending ? 'Memproses...' : 'Masuk'}
                 </Button>
             </form>
 

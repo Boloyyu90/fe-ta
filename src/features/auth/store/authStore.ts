@@ -1,26 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { UserRole } from '@/shared/types/common.types';
-
-interface User {
-    id: number;
-    email: string;
-    name: string;
-    role: UserRole;
-    isEmailVerified: boolean;
-}
+import type { UserPublicData } from '@/features/auth/types/auth.types';
 
 interface AuthState {
-    user: User | null;
+    user: UserPublicData | null;
     accessToken: string | null;
     refreshToken: string | null;
     isAuthenticated: boolean;
 }
 
 interface AuthActions {
-    setAuth: (user: User, accessToken: string, refreshToken: string) => void;
+    setAuth: (user: UserPublicData, accessToken: string, refreshToken: string) => void;
     setTokens: (accessToken: string, refreshToken: string) => void;
-    setUser: (user: User) => void;
+    setUser: (user: UserPublicData) => void;
     clearAuth: () => void;
     isAdmin: () => boolean;
     isParticipant: () => boolean;

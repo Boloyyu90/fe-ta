@@ -9,6 +9,8 @@ import { Button } from '@/shared/components/ui/Button';
 import { Input } from '@/shared/components/ui/Input';
 import { Alert } from '@/shared/components/ui/Alert';
 import { ROUTES } from '@/shared/constants/routes.constants';
+import { getErrorMessage, getValidationErrors, isNetworkError } from '@/shared/utils/error-handler';
+import { useEffect } from 'react';
 
 export function RegisterForm() {
     const { mutate: register, isPending, isError, error } = useRegister();
@@ -16,15 +18,33 @@ export function RegisterForm() {
     const {
         register: registerField,
         handleSubmit,
+        setError,
         formState: { errors },
     } = useForm<RegisterFormData>({
         resolver: zodResolver(registerSchema),
     });
 
+    // ✅ IMPROVED: Set field-specific errors from API
+    useEffect(() => {
+        if (error) {
+            const validationErrors = getValidationErrors(error);
+            Object.entries(validationErrors).forEach(([field, message]) => {
+                setError(field as keyof RegisterFormData, {
+                    type: 'manual',
+                    message,
+                });
+            });
+        }
+    }, [error, setError]);
+
     const onSubmit = (data: RegisterFormData) => {
         const { confirmPassword, ...registerData } = data;
         register(registerData);
     };
+
+    // ✅ IMPROVED: Better error messages
+    const errorMessage = error ? getErrorMessage(error) : null;
+    const showNetworkWarning = error ? isNetworkError(error) : false;
 
     return (
         <div className="w-full max-w-md space-y-6">
@@ -33,9 +53,12 @@ export function RegisterForm() {
                 <p className="mt-2 text-gray-600">Buat akun baru</p>
             </div>
 
-            {isError && (
-                <Alert variant="error">
-                    {error?.message || 'Gagal membuat akun. Silakan coba lagi.'}
+            {isError && errorMessage && (
+                <Alert
+                    variant={showNetworkWarning ? 'warning' : 'error'}
+                    title={showNetworkWarning ? 'Masalah Koneksi' : 'Registrasi Gagal'}
+                >
+                    {errorMessage}
                 </Alert>
             )}
 
@@ -47,6 +70,7 @@ export function RegisterForm() {
                     placeholder="John Doe"
                     error={errors.name?.message}
                     disabled={isPending}
+                    autoComplete="name"
                 />
 
                 <Input
@@ -56,6 +80,7 @@ export function RegisterForm() {
                     placeholder="nama@email.com"
                     error={errors.email?.message}
                     disabled={isPending}
+                    autoComplete="email"
                 />
 
                 <Input
@@ -65,6 +90,8 @@ export function RegisterForm() {
                     placeholder="••••••••"
                     error={errors.password?.message}
                     disabled={isPending}
+                    autoComplete="new-password"
+                    helperText="Min. 8 karakter, huruf besar, huruf kecil, dan angka"
                 />
 
                 <Input
@@ -74,6 +101,7 @@ export function RegisterForm() {
                     placeholder="••••••••"
                     error={errors.confirmPassword?.message}
                     disabled={isPending}
+                    autoComplete="new-password"
                 />
 
                 <Button
@@ -82,7 +110,7 @@ export function RegisterForm() {
                     isLoading={isPending}
                     disabled={isPending}
                 >
-                    Daftar
+                    {isPending ? 'Memproses...' : 'Daftar'}
                 </Button>
             </form>
 

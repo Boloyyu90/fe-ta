@@ -4,10 +4,11 @@ import { cn } from '@/shared/utils/cn';
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     error?: string;
     label?: string;
+    helperText?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ className, error, label, type = 'text', ...props }, ref) => {
+    ({ className, error, label, helperText, type = 'text', ...props }, ref) => {
         return (
             <div className="w-full">
                 {label && (
@@ -28,7 +29,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                     )}
                     {...props}
                 />
+                {/* ✅ IMPROVED: Show helper text or error, prioritize error */}
                 {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+                {!error && helperText && (
+                    <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+                )}
             </div>
         );
     }
