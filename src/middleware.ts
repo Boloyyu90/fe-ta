@@ -1,3 +1,4 @@
+// src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -8,7 +9,7 @@ const adminRoutes = ['/admin'];
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Get auth data from cookie or header
+    // Get auth data from cookie (Zustand persist format)
     const authCookie = request.cookies.get('auth-storage');
 
     let isAuthenticated = false;
@@ -17,6 +18,8 @@ export function middleware(request: NextRequest) {
     if (authCookie) {
         try {
             const authData = JSON.parse(authCookie.value);
+
+            // ✅ FIXED: Zustand persist stores directly in root
             isAuthenticated = authData.state?.isAuthenticated || false;
             userRole = authData.state?.user?.role || null;
         } catch (error) {
@@ -54,13 +57,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public folder
-         */
         '/((?!_next/static|_next/image|favicon.ico|.*\\..*|api).*)',
     ],
 };

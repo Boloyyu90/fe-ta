@@ -20,14 +20,18 @@ interface AuthState {
 interface AuthActions {
     setAuth: (user: User, accessToken: string, refreshToken: string) => void;
     setTokens: (accessToken: string, refreshToken: string) => void;
+    setUser: (user: User) => void;
     clearAuth: () => void;
+    // ✅ Helper methods
+    isAdmin: () => boolean;
+    isParticipant: () => boolean;
 }
 
 type AuthStore = AuthState & AuthActions;
 
 export const useAuthStore = create<AuthStore>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             // State
             user: null,
             accessToken: null,
@@ -49,6 +53,11 @@ export const useAuthStore = create<AuthStore>()(
                     refreshToken,
                 }),
 
+            setUser: (user) =>
+                set({
+                    user,
+                }),
+
             clearAuth: () =>
                 set({
                     user: null,
@@ -56,6 +65,17 @@ export const useAuthStore = create<AuthStore>()(
                     refreshToken: null,
                     isAuthenticated: false,
                 }),
+
+            // ✅ Helper methods
+            isAdmin: () => {
+                const state = get();
+                return state.user?.role === 'ADMIN';
+            },
+
+            isParticipant: () => {
+                const state = get();
+                return state.user?.role === 'PARTICIPANT';
+            },
         }),
         {
             name: 'auth-storage',

@@ -9,37 +9,54 @@ import type {
     TokensData,
 } from '../types/auth.types';
 import type { ApiResponse } from '@/shared/types/api.types';
+import { handleApiError } from '@/shared/lib/api/error-handler';
 
 export const authApi = {
-    register: async (data: RegisterRequest) => {
+    register: async (data: RegisterRequest): Promise<AuthResponse> => {
         const response = await api.post<ApiResponse<AuthResponse>>(
             API_ENDPOINTS.AUTH.REGISTER,
             data
         );
-        return response.data.data!;
+
+        // ✅ Proper null checking
+        if (!response.data.data) {
+            throw new Error('Invalid response format from server');
+        }
+
+        return response.data.data;
     },
 
-    login: async (data: LoginRequest) => {
+    login: async (data: LoginRequest): Promise<AuthResponse> => {
         const response = await api.post<ApiResponse<AuthResponse>>(
             API_ENDPOINTS.AUTH.LOGIN,
             data
         );
-        return response.data.data!;
+
+        if (!response.data.data) {
+            throw new Error('Invalid response format from server');
+        }
+
+        return response.data.data;
     },
 
-    refresh: async (data: RefreshTokenRequest) => {
+    refresh: async (data: RefreshTokenRequest): Promise<TokensData> => {
         const response = await api.post<ApiResponse<{ tokens: TokensData }>>(
             API_ENDPOINTS.AUTH.REFRESH,
             data
         );
-        return response.data.data!.tokens;
+
+        if (!response.data.data?.tokens) {
+            throw new Error('Invalid response format from server');
+        }
+
+        return response.data.data.tokens;
     },
 
-    logout: async (data: LogoutRequest) => {
-        const response = await api.post<ApiResponse<{ message: string }>>(
+    logout: async (data: LogoutRequest): Promise<void> => {
+        await api.post<ApiResponse<{ success: boolean }>>(
             API_ENDPOINTS.AUTH.LOGOUT,
             data
         );
-        return response.data.data!;
+        // ✅ Logout tidak perlu return data
     },
 };

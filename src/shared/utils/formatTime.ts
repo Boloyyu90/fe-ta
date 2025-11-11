@@ -4,12 +4,9 @@ export function formatDuration(seconds: number): string {
     const secs = seconds % 60;
 
     if (hours > 0) {
-        return `${hours} jam ${minutes} menit`;
+        return `${hours}:${padZero(minutes)}:${padZero(secs)}`;
     }
-    if (minutes > 0) {
-        return `${minutes} menit`;
-    }
-    return `${secs} detik`;
+    return `${minutes}:${padZero(secs)}`;
 }
 
 export function formatTimer(totalSeconds: number): string {

@@ -1,5 +1,5 @@
 export const API_ENDPOINTS = {
-    // Auth
+    // ==================== AUTH (PUBLIC) ====================
     AUTH: {
         REGISTER: '/auth/register',
         LOGIN: '/auth/login',
@@ -7,68 +7,86 @@ export const API_ENDPOINTS = {
         LOGOUT: '/auth/logout',
     },
 
-    // Exams
+    // ==================== SELF-MANAGEMENT ====================
+    ME: {
+        PROFILE: '/me',
+        UPDATE: '/me',
+    },
+
+    // ==================== EXAMS (PARTICIPANT) ====================
     EXAMS: {
         LIST: '/exams',
         DETAIL: (id: number) => `/exams/${id}`,
         START: (id: number) => `/exams/${id}/start`,
     },
 
-    // Admin Exams
-    ADMIN_EXAMS: {
-        LIST: '/admin/exams',
-        CREATE: '/admin/exams',
-        DETAIL: (id: number) => `/admin/exams/${id}`,
-        UPDATE: (id: number) => `/admin/exams/${id}`,
-        DELETE: (id: number) => `/admin/exams/${id}`,
-        ATTACH_QUESTIONS: (id: number) => `/admin/exams/${id}/questions`,
-        DETACH_QUESTIONS: (id: number) => `/admin/exams/${id}/questions`,
-        QUESTIONS: (id: number) => `/admin/exams/${id}/questions`,
+    // ==================== EXAM SESSIONS ====================
+    EXAM_SESSIONS: {
+        LIST: '/exam-sessions',
+        DETAIL: (id: number) => `/exam-sessions/${id}`,
+        QUESTIONS: (id: number) => `/exam-sessions/${id}/questions`,
+        SUBMIT_ANSWER: (id: number) => `/exam-sessions/${id}/answers`,
+        GET_ANSWERS: (id: number) => `/exam-sessions/${id}/answers`,
+        SUBMIT: (id: number) => `/exam-sessions/${id}/submit`,
     },
 
-    // Exam Sessions
-    USER_EXAMS: {
-        DETAIL: (id: number) => `/user-exams/${id}`,
-        QUESTIONS: (id: number) => `/user-exams/${id}/questions`,
-        SUBMIT_ANSWER: (id: number) => `/user-exams/${id}/answers`,
-        GET_ANSWERS: (id: number) => `/user-exams/${id}/answers`,
-        SUBMIT: (id: number) => `/user-exams/${id}/submit`,
-    },
-
-    // Results
+    // ==================== RESULTS ====================
     RESULTS: {
-        MY_RESULTS: '/results/me',
-        ADMIN_RESULTS: '/admin/results',
+        MY_RESULTS: '/results',
     },
 
-    // Questions
-    QUESTIONS: {
-        LIST: '/admin/questions',
-        CREATE: '/admin/questions',
-        DETAIL: (id: number) => `/admin/questions/${id}`,
-        UPDATE: (id: number) => `/admin/questions/${id}`,
-        DELETE: (id: number) => `/admin/questions/${id}`,
-        BULK_CREATE: '/admin/questions/bulk',
-        BULK_DELETE: '/admin/questions/bulk-delete',
-        STATS: '/admin/questions/stats',
-    },
-
-    // Proctoring
+    // ==================== PROCTORING ====================
     PROCTORING: {
         LOG_EVENT: '/proctoring/events',
-        LOG_BATCH: '/proctoring/events/batch',
-        DETECT_FACE: '/proctoring/detect-face',
-        EVENTS: (userExamId: number) => `/proctoring/user-exams/${userExamId}/events`,
-        STATS: (userExamId: number) => `/proctoring/user-exams/${userExamId}/stats`,
-        ADMIN_EVENTS: '/admin/proctoring/events',
+        ANALYZE_FACE: (userExamId: number) =>
+            `/proctoring/exam-sessions/${userExamId}/analyze-face`,
+        GET_EVENTS: (userExamId: number) =>
+            `/proctoring/exam-sessions/${userExamId}/events`,
     },
 
-    // Users
-    USERS: {
-        LIST: '/users',
-        CREATE: '/users',
-        DETAIL: (id: number) => `/users/${id}`,
-        UPDATE: (id: number) => `/users/${id}`,
-        DELETE: (id: number) => `/users/${id}`,
+    // ==================== ADMIN ROUTES ====================
+    ADMIN: {
+        USERS: {
+            LIST: '/admin/users',
+            CREATE: '/admin/users',
+            DETAIL: (id: number) => `/admin/users/${id}`,
+            UPDATE: (id: number) => `/admin/users/${id}`,
+            DELETE: (id: number) => `/admin/users/${id}`,
+        },
+
+        EXAMS: {
+            LIST: '/admin/exams',
+            CREATE: '/admin/exams',
+            DETAIL: (id: number) => `/admin/exams/${id}`,
+            UPDATE: (id: number) => `/admin/exams/${id}`,
+            DELETE: (id: number) => `/admin/exams/${id}`,
+            GET_QUESTIONS: (id: number) => `/admin/exams/${id}/questions`,
+            ATTACH_QUESTIONS: (id: number) => `/admin/exams/${id}/questions`,
+            DETACH_QUESTIONS: (id: number) => `/admin/exams/${id}/questions`,
+        },
+
+        QUESTIONS: {
+            LIST: '/admin/questions',
+            CREATE: '/admin/questions',
+            DETAIL: (id: number) => `/admin/questions/${id}`,
+            UPDATE: (id: number) => `/admin/questions/${id}`,
+            DELETE: (id: number) => `/admin/questions/${id}`,
+        },
+
+        EXAM_SESSIONS: {
+            LIST: '/admin/exam-sessions',
+            DETAIL: (id: number) => `/admin/exam-sessions/${id}`,
+            GET_ANSWERS: (id: number) => `/admin/exam-sessions/${id}/answers`,
+        },
+
+        RESULTS: {
+            LIST: '/admin/results',
+        },
+
+        PROCTORING: {
+            EVENTS: '/admin/proctoring/events',
+            SESSION_EVENTS: (userExamId: number) =>
+                `/admin/proctoring/exam-sessions/${userExamId}/events`,
+        },
     },
 } as const;
