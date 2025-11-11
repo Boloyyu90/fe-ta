@@ -29,7 +29,7 @@ function parseAuthCookie(cookieValue: string): {
 }
 
 export function middleware(request: NextRequest) {
-    const { pathname } = request.nextUrl;
+    const { pathname, searchParams } = request.nextUrl;
 
     // Get auth data from cookie
     const authCookie = request.cookies.get('auth-storage');
@@ -49,8 +49,14 @@ export function middleware(request: NextRequest) {
     // RULE 1: Redirect authenticated users away from auth pages
     // ============================================
     if (isAuthenticated && authRoutes.some((route) => pathname.startsWith(route))) {
-        const redirectTo = userRole === 'ADMIN' ? '/admin' : '/dashboard';
-        return NextResponse.redirect(new URL(redirectTo, request.url));
+        const redirectTo = searchParams.get('redirect');
+
+        if (redirectTo && redirectTo.startsWith('/')) {
+            return NextResponse.redirect(new URL(redirectTo, request.url));
+        }
+
+        const defaultRedirect = userRole === 'ADMIN' ? '/admin' : '/dashboard';
+        return NextResponse.redirect(new URL(defaultRedirect, request.url));
     }
 
     // ============================================
