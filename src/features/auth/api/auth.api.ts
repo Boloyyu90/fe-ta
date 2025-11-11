@@ -9,7 +9,6 @@ import type {
     TokensData,
 } from '../types/auth.types';
 import type { ApiResponse } from '@/shared/types/api.types';
-import { handleApiError } from '@/shared/lib/api/error-handler';
 
 export const authApi = {
     register: async (data: RegisterRequest): Promise<AuthResponse> => {
@@ -18,7 +17,6 @@ export const authApi = {
             data
         );
 
-        // ✅ Proper null checking
         if (!response.data.data) {
             throw new Error('Invalid response format from server');
         }

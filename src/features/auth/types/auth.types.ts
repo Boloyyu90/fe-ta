@@ -1,14 +1,13 @@
 import { UserRole } from '@/shared/types/common.types';
 
-// ✅ Exact match dengan backend
 export interface UserPublicData {
     id: number;
     email: string;
     name: string;
     role: UserRole;
-    isEmailVerified: boolean; // ✅ Sudah benar
-    createdAt: string; // ⚠️ Gunakan string untuk date dari API
-    updatedAt: string; // ⚠️ Gunakan string untuk date dari API
+    isEmailVerified: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface TokensData {

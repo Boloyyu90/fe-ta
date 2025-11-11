@@ -22,7 +22,6 @@ interface AuthActions {
     setTokens: (accessToken: string, refreshToken: string) => void;
     setUser: (user: User) => void;
     clearAuth: () => void;
-    // ✅ Helper methods
     isAdmin: () => boolean;
     isParticipant: () => boolean;
 }
@@ -66,7 +65,6 @@ export const useAuthStore = create<AuthStore>()(
                     isAuthenticated: false,
                 }),
 
-            // ✅ Helper methods
             isAdmin: () => {
                 const state = get();
                 return state.user?.role === 'ADMIN';

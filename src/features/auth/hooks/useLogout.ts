@@ -18,11 +18,10 @@ export function useLogout() {
         },
         onSuccess: () => {
             clearAuth();
-            queryClient.clear(); // Clear all cached queries
+            queryClient.clear();
             router.push(ROUTES.LOGIN);
         },
         onError: () => {
-            // Even if logout fails, clear local auth
             clearAuth();
             queryClient.clear();
             router.push(ROUTES.LOGIN);

@@ -15,7 +15,6 @@ export function useRegister() {
             const { user, tokens } = response;
             setAuth(user, tokens.accessToken, tokens.refreshToken);
 
-            // Always redirect to participant dashboard after register
             router.push(ROUTES.DASHBOARD);
         },
     });

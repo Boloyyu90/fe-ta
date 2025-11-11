@@ -15,7 +15,6 @@ export function useLogin() {
             const { user, tokens } = response;
             setAuth(user, tokens.accessToken, tokens.refreshToken);
 
-            // Redirect based on role
             if (user.role === 'ADMIN') {
                 router.push(ROUTES.ADMIN_DASHBOARD);
             } else {
